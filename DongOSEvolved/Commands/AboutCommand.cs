@@ -10,7 +10,7 @@ namespace DongOSEvolved.Commands
 
         public string Description => "Shows the version of the OS.";
 
-        public void Execute(object parameter)
+        public void Execute(string parameter)
         {
             Console.WriteLine("DongOS 0.0.1 | GL HF :) !");
         }

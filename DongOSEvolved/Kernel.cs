@@ -26,9 +26,17 @@ namespace DongOSEvolved
             bool commandFound = false;
             foreach (var item in commands)
             {
-                if (item.Name.Equals(input, StringComparison.CurrentCultureIgnoreCase))
+                if (input.StartsWith(item.Name, StringComparison.OrdinalIgnoreCase))
                 {
-                    item.Execute();
+                    try
+                    {
+                        var parameter = input.Substring(item.Name.Length);
+                        item.Execute(parameter);
+                    }
+                    catch
+                    {
+                        item.Execute("");
+                    }
                     commandFound = true;
                     break;
                 }
@@ -43,7 +51,8 @@ namespace DongOSEvolved
         {
             new AboutCommand(),
             new GraphicsCommand(),
-            new HelpCommand()
+            new HelpCommand(),
+            new PerfTestCommand()
         };
 
         public class HelpCommand : ICommand
@@ -52,7 +61,7 @@ namespace DongOSEvolved
 
             public string Description => "Shows help.";
 
-            public void Execute(object parameter)
+            public void Execute(string parameter)
             {
                 string result = "";
                 byte count = 0;

@@ -8,6 +8,6 @@ namespace DongOSEvolved.Commands
     {
         string Name { get; }
         string Description { get; }
-        void Execute(object parameter = null);
+        void Execute(string parameter);
     }
 }

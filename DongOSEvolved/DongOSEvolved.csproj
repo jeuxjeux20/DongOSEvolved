@@ -4,11 +4,11 @@
         <TargetFramework>netcoreapp2.0</TargetFramework>
         <RuntimeIdentifier>cosmos</RuntimeIdentifier>
         <SelfContained>True</SelfContained>
-        <BinFormat>ELF</BinFormat>
+        <BinFormat>Elf</BinFormat>
         <StackCorruptionDetectionEnabled>True</StackCorruptionDetectionEnabled>
         <StackCorruptionDetectionLevel>MethodFooters</StackCorruptionDetectionLevel>
         <Deployment>ISO</Deployment>
-        <DebugEnabled>False</DebugEnabled>
+        <DebugEnabled>True</DebugEnabled>
         <DebugMode>Source</DebugMode>
         <IgnoreDebugStubAttribute>False</IgnoreDebugStubAttribute>
         <VMware_StackCorruptionDetectionEnabled>True</VMware_StackCorruptionDetectionEnabled>
@@ -29,7 +29,7 @@
         <HyperV_Description>Use Hyper-V to deploy and debug.</HyperV_Description>
         <HyperV_Deployment>ISO</HyperV_Deployment>
         <HyperV_Launch>HyperV</HyperV_Launch>
-        <HyperV_DebugEnabled>True</HyperV_DebugEnabled>
+        <HyperV_DebugEnabled>False</HyperV_DebugEnabled>
         <HyperV_DebugMode>Source</HyperV_DebugMode>
         <HyperV_IgnoreDebugStubAttribute>False</HyperV_IgnoreDebugStubAttribute>
         <HyperV_CosmosDebugPort>Serial: COM1</HyperV_CosmosDebugPort>
@@ -94,6 +94,10 @@
         <IntelEdison_StartCosmosGDB>False</IntelEdison_StartCosmosGDB>
         <IntelEdison_EnableBochsDebug>True</IntelEdison_EnableBochsDebug>
         <IntelEdison_StartBochsDebugGui>True</IntelEdison_StartBochsDebugGui>
+        <TraceAssemblies>User</TraceAssemblies>
+        <VMware_TraceAssemblies>User</VMware_TraceAssemblies>
+        <HyperV_TraceAssemblies>User</HyperV_TraceAssemblies>
+        <Bochs_TraceAssemblies>User</Bochs_TraceAssemblies>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -105,6 +109,10 @@
         <Profile>VMware</Profile>
         <Description>Use VMware Player or Workstation to deploy and debug.</Description>
         <PxeInterface>192.168.0.8</PxeInterface>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+      <DebugEnabled>True</DebugEnabled>
     </PropertyGroup>
 
     <ItemGroup>
