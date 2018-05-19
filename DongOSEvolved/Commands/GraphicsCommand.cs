@@ -17,7 +17,7 @@ namespace DongOSEvolved.Commands
         {
             var c = new UICanvas
             {
-                Mode = new Mode(800, 600, ColorDepth.ColorDepth32)
+                Mode = new Mode(320, 200, ColorDepth.ColorDepth32)
             };
             var environment = new UIEnvironment(c);
             environment.Start();

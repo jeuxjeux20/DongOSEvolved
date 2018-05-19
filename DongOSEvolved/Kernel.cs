@@ -11,8 +11,8 @@ namespace DongOSEvolved
     {
         protected override void BeforeRun()
         {
-            Console.WriteLine("Test");
-            Console.WriteLine("Hi donger, look at some commands lol");
+            Console.Clear();
+            Console.WriteLine("Hi donger, type 'help' for all dem commands !");
         }
         public override void Start()
         {
@@ -33,9 +33,12 @@ namespace DongOSEvolved
                         var parameter = input.Substring(item.Name.Length);
                         item.Execute(parameter);
                     }
-                    catch
+                    catch (Exception e)
                     {
-                        item.Execute("");
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("FAWK, ERROR OCCURED : ");
+                        Console.WriteLine(e.ToString().ToUpper());
+                        Console.ResetColor();
                     }
                     commandFound = true;
                     break;
@@ -52,7 +55,8 @@ namespace DongOSEvolved
             new AboutCommand(),
             new GraphicsCommand(),
             new HelpCommand(),
-            new PerfTestCommand()
+            new PerfTestCommand(),
+            new TestCommand()
         };
 
         public class HelpCommand : ICommand

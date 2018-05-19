@@ -8,111 +8,115 @@ namespace DongOSEvolved.UI
 {
     public class UIEnvironment
     {
-        private readonly UICanvas canvas;
+        public UICanvas Canvas { get; }
         public static Mouse Mouse { get; private set; }
-        private readonly List<UIElement> elements = new List<UIElement>();
+        public List<UIElement> Elements { get; } = new List<UIElement>();
         public UIEnvironment(UICanvas c)
         {
-            canvas = c;
+            Canvas = c;
         }
         public bool Started { get; private set; }
         public void Start()
-        {
+        { 
             Mouse = new Mouse();          
-            Mouse.Initialize((uint)canvas.Mode.Columns, (uint)canvas.Mode.Rows);
+            Mouse.Initialize((uint)Canvas.Mode.Columns, (uint)Canvas.Mode.Rows);
             Started = true;
+            AddBackground();
             AddBottomBar();
-            AddTV();
-            int iteration = 1;
             while (true)
             {
-                Kernel.PrintDebug("Drawing iteration : " + iteration);
-                iteration++;
-                // var time = DateTime.Now;
-                canvas.Clear(Color.LightGreen);
-                DrawAllElements();
                 MouseRoutine();
-                System.Threading.Thread.Sleep(75 /* - time.Millisecond */); // 30 fps cap
-                // For some reason timespan doesn´t work because it converts to string for no reason :( 
             }
         }
-        // found on internet :v
-        private static void Quicksort(List<UIElement> elements, int left, int right)
-        {
-            int i = left, j = right;
-            IComparable pivot = elements[(left + right) / 2];
-
-            while (i <= j)
-            {
-                while (elements[i].CompareTo(pivot) < 0)
-                {
-                    i++;
-                }
-
-                while (elements[j].CompareTo(pivot) > 0)
-                {
-                    j--;
-                }
-
-                if (i <= j)
-                {
-                    // Swap
-                    UIElement tmp = elements[i];
-                    elements[i] = elements[j];
-                    elements[j] = tmp;
-
-                    i++;
-                    j--;
-                }
-            }
-
-            // Recursive calls
-            if (left < j)
-            {
-                Quicksort(elements, left, j);
-            }
-
-            if (i < right)
-            {
-                Quicksort(elements, i, right);
-            }
-        }
-        private void DrawAllElements()
+        private void DrawAllElements() // rip this method because of our QUADRUPLE-BUFFERING SCIENCE DRAWING BOARRRD
         {
             Kernel.PrintDebug("Drawing everything...");
             // Quicksort(elements, 0, elements.Count - 1);
-            foreach (var item in elements)
+            foreach (var item in Elements)
             {
                 Kernel.PrintDebug("Drawing item in foreach...");
-                item.Draw(canvas);
+                item.Draw();
             }
         }
-
+        public void AddBackground()
+        {
+            AddUIElement(new BackgroundUIElement(this));
+        }
         public void AddUIElement(UIElement element)
         {
             if (!Started)
             {
                 throw new InvalidOperationException("The environment has not started yet.");
-            }
-            elements.Add(element);
+            } 
+            Elements.Add(element);  
         }
         private void AddBottomBar()
         {
             Cosmos.System.Kernel.PrintDebug("BottomBar added");
-            AddUIElement(new DelegateUIElement(c =>
+            AddUIElement(new DelegateUIElement(this, c =>
             {
                 var height = 30;
-                c.DrawFilledRectangle(new Pen(Color.Blue), 0, canvas.Mode.Rows - height, canvas.Mode.Columns, height);
+                c.DrawFilledRectangle(new Pen(Color.Blue), 0, Canvas.Mode.Rows - height, Canvas.Mode.Columns, height);
             }));
         }
         private void AddTV()
         {
-            elements.Add(new DelegateUIElement(c => c.DrawImage(Images.TV, 200, 300)));
+            Elements.Add(new DelegateUIElement(this, c => { c.DrawImage(Images.TV, 200, 300); }) );
         }
+        private List<Pixel> lastMousePixels = new List<Pixel>();
+        int lastMouseX = -1;
+        int lastMouseY = -1;
         private void MouseRoutine()
         {
-            Kernel.PrintDebug("Drawing mouse....");
-            canvas.DrawFilledRectangle(new Pen(Color.Black), Mouse.X, Mouse.Y, 2, 2);
+            // If this is the first time we draw it :
+            if (lastMouseX == -1)
+            {
+                SetMouse();
+                return;
+            }
+            // If it changed position from yesterday... hmmm sorry last time.
+            if ((Mouse.X != lastMouseX || Mouse.X != lastMouseY))
+            {
+                Kernel.PrintDebug("hmmm mouse changed");
+                var newer = DrawMouse();
+                List<Pixel> pixels = newer.GetMissingElements(lastMousePixels);
+                Kernel.PrintDebug("newer length : " + newer.Count + " lastMoustPixels count : " + lastMousePixels.Count);
+                foreach (var item in pixels)
+                {
+                    Kernel.PrintDebug("oWo there is something MISSISISISNG");
+                    var onScreen = Canvas.PixelsLocation[item.Coords.X][item.Coords.Y];
+                    int count = onScreen.Pixels.Count;
+                    if (count >= 2)
+                    {
+                        Color color = onScreen.Pixels[count - 1].Color;
+                        Kernel.PrintDebug("Count more than two. i don't care lol");
+                        Canvas.DrawPoint(new Pen(color), item.Coords);
+                    }
+                    else if (count >= 1)
+                    {
+                        Color color = onScreen.Pixels[count].Color;
+                        Kernel.PrintDebug("Count more than one, behind color's red level : " + color.R);
+                        Canvas.DrawPoint(new Pen(color), item.Coords);
+                    }
+                    else
+                    {
+                        Kernel.PrintDebug("wtf there is nothing behind me.");
+                    }
+                    SetMouse();
+                }
+            }
+        }
+
+        private void SetMouse()
+        {
+            lastMousePixels = DrawMouse();
+            lastMouseX = Mouse.X;
+            lastMouseY = Mouse.Y;
+        }
+
+        private List<Pixel> DrawMouse()
+        {
+            return Canvas.ExecuteWhileRecording(c => c.DrawFilledRectangle(new Pen(Color.Black), Mouse.X, Mouse.Y, 2, 2));
         }
     }
 }

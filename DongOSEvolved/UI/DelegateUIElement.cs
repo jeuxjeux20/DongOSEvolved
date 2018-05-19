@@ -7,12 +7,13 @@ namespace DongOSEvolved.UI
 {
     public class DelegateUIElement : UIElement
     {
-        public DelegateUIElement(DrawDelegate draw)
+        public DelegateUIElement(UIEnvironment environment, DrawDelegate draw) : base(environment)
         {
-            ShapeDraw = draw;
+            ShapeDraw = draw; 
+            Draw();
         }
-        public DrawDelegate ShapeDraw { get; }
-        protected override void DrawShape(Canvas c)
+        public DrawDelegate ShapeDraw { get; private set; }
+        protected override void DrawShape(UICanvas c)
         {
             Kernel.PrintDebug("Drawing shaaaapppe");
             ShapeDraw(c);
