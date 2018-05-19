@@ -14,6 +14,7 @@ namespace DongOSEvolved.UI
     {
         public UICanvas()
         {
+            Clear();
             ResetPixelArray();
         }
 
